@@ -1,0 +1,7 @@
+rabbitmq:
+  address: 127.0.0.1:5672
+  userName: rabbitmq
+  password: rabbitmq
+  publisherConfirms: true
+  virtualHost: /
+  druable: false
