@@ -23,7 +23,7 @@ public class RabbitmqConsumerTopic1Config {
     public MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory){
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(RabbitmqEnum.QueueName.TOPICTEST1.getCode());
+        container.setQueueNames(RabbitmqEnum.QueueNameEnum.TOPICTEST1.getCode());
         container.setMessageListener(exampleListener1());
         container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
         return container;

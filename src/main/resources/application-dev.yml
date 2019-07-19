@@ -1,7 +1,25 @@
 rabbitmq:
-  address: 127.0.0.1:5672
+#  address: 127.0.0.1:5672
+  address: 192.168.19.128:5672
   userName: rabbitmq
   password: rabbitmq
   publisherConfirms: true
   virtualHost: /
   druable: false
+
+logging:
+  level:
+#    root: debug
+    com.rabbitmqandwebsocketexample.demo: debug
+
+
+spring:
+  rabbitmq:
+    addresses: 192.168.19.128:5672
+    username: rabbitmq
+    password: rabbitmq
+    template:
+#      还可以通过声明RabbitRetryTemplateCustomizer bean以编程方式自定义RetryTemplate。
+      retry:
+        enabled: true
+        initial-interval: 2

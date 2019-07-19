@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -21,44 +20,84 @@ public class RabbitmqSendController {
     @Resource
     private RabbitmqMessageSendService messagePushService;
 
-    @RequestMapping(value = "/send/mqtt",method = RequestMethod.GET)
-    public ResponseEntity sendMqtt(@RequestParam String name){
+    String name = "lxx";
+
+    /**
+     * 队列：AMQTOPIC1，AMQTOPIC2，AMQTOPIC3会收到消息
+     * routingKey：amq.topic.*
+     * @return
+     */
+    @RequestMapping(value = "/send/AMQTOPIC",method = RequestMethod.GET)
+    public ResponseEntity sendMqtt(){
         TestUser user = new TestUser(name,33);
         log.info("MQTT,user:"+user);
-        messagePushService.sendObjectJson2(RabbitmqEnum.Exchange.CONTRACT_TOPIC.getCode(),"amq.topic.mqtt",user);
+        messagePushService.sendObjectAsJsonString(RabbitmqEnum.ExchangeEnum.CONTRACT_TOPIC.getCode(),"amq.topic.test",user);
         return ResponseEntity.ok("ok");
     }
 
-    @RequestMapping(value = "/sendtopic/amq",method = RequestMethod.GET)
-    public ResponseEntity sendAqm(@RequestParam String name){
+    /**
+     * 队列：TESTQUEUE1，TESTQUEUE2会收到消息
+     * routingKey：TESTQUEUE*
+     * @return
+     */
+    @RequestMapping(value = "/send/TESTQUEUE",method = RequestMethod.GET)
+    public ResponseEntity sendAqm(){
         TestUser user = new TestUser(name,11);
         log.info("TestUser:"+user);
-        messagePushService.sendObjectJson2(RabbitmqEnum.Exchange.CONTRACT_TOPIC.getCode(),"amq.topic.user",user);
+        messagePushService.sendObjectAsJsonString(RabbitmqEnum.ExchangeEnum.CONTRACT_TOPIC.getCode(),"TESTQUEUE.t",user);
         return ResponseEntity.ok(user);
 
     }
 
-    @RequestMapping(value = "/sendDirect",method = RequestMethod.GET)
-    public ResponseEntity<String> sendRabbitmqDirect(@RequestParam String name){
+    /**
+     * 队列：TESTTOPICQUEUE1_1，TESTTOPICQUEUE1_2,TESTTOPICQUEUE2_1，TESTTOPICQUEUE2_2会收到消息
+     * routingKey: *.TEST.*
+     * @return
+     */
+    @RequestMapping(value = "/send/TESTTOPICQUEUE1",method = RequestMethod.GET)
+    public ResponseEntity<String> sendRabbitmqTopic2(){
         TestUser testUser = new TestUser(name,22);
         log.debug("TestUser:{}",testUser);
-        messagePushService.sendRabbitmqDirect("TESTQUEUE1",testUser);
+        messagePushService.sendObjectTopic("lazy.TEST.2",testUser);
         return ResponseEntity.ok("ok");
     }
 
-    @RequestMapping(value = "/sendtopic1",method = RequestMethod.GET)
+    /**
+     * 队列：TESTTOPICQUEUE2_1，TESTTOPICQUEUE2_2会收到消息
+     * routingKey: lazy.#
+     * @return
+     */
+    @RequestMapping(value = "/send/TESTTOPICQUEUE2",method = RequestMethod.GET)
     public ResponseEntity<String> sendRabbitmqTopic(){
-        TestUser testUser = new TestUser("topic",22);
+        TestUser testUser = new TestUser(name,22);
         log.debug("TestUser:{}",testUser);
-        messagePushService.sendRabbitmqTopic("lazy.1.2",testUser);
+        messagePushService.sendObjectTopic("lazy.1.2",testUser);
         return ResponseEntity.ok("ok");
     }
 
-    @RequestMapping(value = "/sendtopic2",method = RequestMethod.GET)
-    public ResponseEntity<String> sendRabbitmqTopic2(){
-        TestUser testUser = new TestUser("topic",22);
+    /**
+     * 队列：TOPICTEST1，TOPICTEST2会收到消息
+     * routingKey: TOPICTEST*
+     * @return
+     */
+    @RequestMapping(value = "/send/TOPICTEST",method = RequestMethod.GET)
+    public ResponseEntity<String> sendRabbitmqTopic3(){
+        TestUser testUser = new TestUser(name,22);
         log.debug("TestUser:{}",testUser);
-        messagePushService.sendRabbitmqTopic("lazy.TEST.2",testUser);
+        messagePushService.sendObjectTopic("TOPICTEST.t",testUser);
+        return ResponseEntity.ok("ok");
+    }
+
+    /**
+     * 队列：mqtt-subscription-1qos0,mqtt-subscription-1qos1会收到消息
+     * routingKey: direct
+     * @return
+     */
+    @RequestMapping(value = "/sendDirect",method = RequestMethod.GET)
+    public ResponseEntity<String> sendRabbitmqDirect(){
+        TestUser testUser = new TestUser(name,22);
+        log.debug("TestUser:{}",testUser);
+        messagePushService.sendObjectDirect("direct",testUser);
         return ResponseEntity.ok("ok");
     }
 }

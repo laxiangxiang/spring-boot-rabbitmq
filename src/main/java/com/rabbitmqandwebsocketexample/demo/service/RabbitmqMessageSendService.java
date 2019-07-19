@@ -22,8 +22,6 @@ public class RabbitmqMessageSendService {
 
     @Resource
     private RabbitTemplate rabbitTemplate;
-    private static final String EXCHANGE = "amq.topic";
-    private static final String ROUTING_KEY = "amq.topic";
     private Logger LOGGER = LoggerFactory.getLogger(RabbitmqMessageSendService.class);
     private ObjectMapper objectMapper;
 
@@ -35,33 +33,13 @@ public class RabbitmqMessageSendService {
         objectMapper.registerModule(module);
     }
 
-    public boolean sendObjectJson(String topic, Object object) {
-        try {
-            LOGGER.debug("topic : " + topic + " | Json : " + objectMapper.writeValueAsString(object));
-            return sendMessage(topic, objectMapper.writeValueAsString(object));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to convert an object to json: ", e);
-        }
-        return false;
-    }
-
-    public boolean sendMessage(String topic, String message) {
-        try {
-            this.rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY + topic, message);
-            return true;
-        } catch (Exception ex) {
-            LOGGER.error("Error sent messge: ", ex);
-        }
-        return false;
-    }
-
-    public boolean sendObjectJson2(String topicExchange ,String routeKey,Object obj){
+    public boolean sendObjectAsJsonString(String exchange , String routeKey, Object obj){
         try {
             String message = objectMapper.writeValueAsString(obj);
-            LOGGER.debug("topicExchange : " + topicExchange + " | message : " + message);
+            LOGGER.debug("topicExchange : " + exchange + " | message : " + message);
             CorrelationData correlationData = new CorrelationData(UUID.randomUUID().toString());
             LOGGER.info("send:"+correlationData.getId());
-            this.rabbitTemplate.convertAndSend(topicExchange,routeKey,message,correlationData);
+            rabbitTemplate.convertAndSend(exchange,routeKey,message,correlationData);
         }catch (JsonProcessingException e){
             LOGGER.error("Failed to convert an object to json: ",e);
         }
@@ -73,10 +51,10 @@ public class RabbitmqMessageSendService {
      * @param routeKey
      * @param obj
      */
-    public void sendRabbitmqDirect(String routeKey,Object obj){
+    public void sendObjectDirect(String routeKey, Object obj){
         CorrelationData correlationData = new CorrelationData(UUID.randomUUID().toString());
         LOGGER.info("send:"+correlationData.getId());
-        rabbitTemplate.convertAndSend(RabbitmqEnum.Exchange.CONTRACT_DIRECT.getCode(),routeKey,obj,correlationData);
+        rabbitTemplate.convertAndSend(RabbitmqEnum.ExchangeEnum.CONTRACT_DIRECT.getCode(),routeKey,obj,correlationData);
     }
 
     /**
@@ -84,9 +62,9 @@ public class RabbitmqMessageSendService {
      * @param routeKey
      * @param obj
      */
-    public void sendRabbitmqTopic(String routeKey,Object obj){
+    public void sendObjectTopic(String routeKey, Object obj){
         CorrelationData correlationData = new CorrelationData(UUID.randomUUID().toString());
         LOGGER.info("send:"+correlationData.getId());
-        rabbitTemplate.convertAndSend(RabbitmqEnum.Exchange.CONTRACT_TOPIC.getCode(),routeKey,obj,correlationData);
+        rabbitTemplate.convertAndSend(RabbitmqEnum.ExchangeEnum.CONTRACT_TOPIC.getCode(),routeKey,obj,correlationData);
     }
 }
